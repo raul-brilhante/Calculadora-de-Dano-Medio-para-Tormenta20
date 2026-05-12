@@ -8,6 +8,7 @@ namespace CalculadoraDanoT20
     {
         private ResultadosFinais totalAcumulado = new ResultadosFinais();
         private AtributosAmeaca atributosAmeacaAtual = new AtributosAmeaca();
+        private NumericUpDown numTesteAtaque = null!;
         private Panel painelAtaque = null!;
         private Panel painelAmeaca = null!;
         private Panel painelConfigAmeaca = null!;
@@ -78,8 +79,8 @@ namespace CalculadoraDanoT20
         private void ConfigurarJanela()
         {
             this.Text = "Calculadora de Dano Médio - Tormenta20";
-            this.Size = new Size(800, 700);
-            this.MinimumSize = new Size(800, 700);
+            this.Size = new Size(800, 725);
+            this.MinimumSize = new Size(800, 725);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -190,31 +191,31 @@ namespace CalculadoraDanoT20
             grpRodadasAmeaca.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             grpRodadasAmeaca.ForeColor = ColorTranslator.FromHtml("#FFD700");
             grpRodadasAmeaca.BackColor = ColorTranslator.FromHtml("#3D2121");
-            grpRodadasAmeaca.Location = new Point(130, 360);
-            grpRodadasAmeaca.Size = new Size(520, 185);
+            grpRodadasAmeaca.Location = new Point(30, 360);
+            grpRodadasAmeaca.Size = new Size(720, 185);
             grpRodadasAmeaca.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             painelAmeaca.Controls.Add(grpRodadasAmeaca);
 
-            int yRod = 35;
-            lblRodadas1 = CriarLabelRodadas(grpRodadasAmeaca, "Dano Normal:", 30, yRod);
-            lblRodadas2 = CriarLabelRodadas(grpRodadasAmeaca, "Normal (Concentração):", 270, yRod);
+            int yRod = 40;
+            lblRodadas1 = CriarLabelResultado(grpRodadasAmeaca, "Dano Normal:", 50, yRod);
+            lblRodadas2 = CriarLabelResultado(grpRodadasAmeaca, "Normal (Concentração):", 420, yRod);
 
             yRod += 35;
-            lblRodadas3 = CriarLabelRodadas(grpRodadasAmeaca, "Normal (Dilacerante):", 30, yRod);
-            lblRodadas4 = CriarLabelRodadas(grpRodadasAmeaca, "Conc. + Dilacerante:", 270, yRod);
+            lblRodadas3 = CriarLabelResultado(grpRodadasAmeaca, "Normal (Dilacerante):", 50, yRod);
+            lblRodadas4 = CriarLabelResultado(grpRodadasAmeaca, "Conc. + Dilacerante:", 420, yRod);
 
             yRod += 35;
-            lblRodadas5 = CriarLabelRodadas(grpRodadasAmeaca, "Normal (Lancinante):", 30, yRod);
-            lblRodadas6 = CriarLabelRodadas(grpRodadasAmeaca, "Conc. + Lancinante:", 270, yRod);
+            lblRodadas5 = CriarLabelResultado(grpRodadasAmeaca, "Normal (Lancinante):", 50, yRod);
+            lblRodadas6 = CriarLabelResultado(grpRodadasAmeaca, "Conc. + Lancinante:", 420, yRod);
 
             yRod += 35;
-            lblRodadas7 = CriarLabelRodadas(grpRodadasAmeaca, "Normal (Lancinante Rev.):", 30, yRod);
-            lblRodadas8 = CriarLabelRodadas(grpRodadasAmeaca, "Conc. + Lancinante Rev.:", 270, yRod);
+            lblRodadas7 = CriarLabelResultado(grpRodadasAmeaca, "Normal (Lancinante Rev.):", 50, yRod);
+            lblRodadas8 = CriarLabelResultado(grpRodadasAmeaca, "Conc. + Lancinante Rev.:", 420, yRod);
 
             Panel painelPrincipal = new Panel();
             painelPrincipal.BackColor = ColorTranslator.FromHtml("#3D2121");
             painelPrincipal.Location = new Point(130, 30);
-            painelPrincipal.Size = new Size(520, 300);
+            painelPrincipal.Size = new Size(520, 345);
             painelPrincipal.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             painelAtaque.Controls.Add(painelPrincipal);
             
@@ -231,6 +232,10 @@ namespace CalculadoraDanoT20
             int yStart = 55;
             int yStep = 45;
 
+            CriarLabel("Teste de ataque:", xLabel, yStart, painelPrincipal);
+            numTesteAtaque = CriarNumeric(xInput, yStart, 0, -999, 999, painelPrincipal);
+
+            yStart += yStep;
             
             CriarLabel("Margem de Ameaça:", xLabel, yStart, painelPrincipal);
             numMargem = CriarNumeric(xInput, yStart, 20, 1, 20, painelPrincipal);
@@ -259,7 +264,7 @@ namespace CalculadoraDanoT20
             lblNota.Size = new Size(200, 20);
             painelPrincipal.Controls.Add(lblNota);
 
-            yStart = 350;
+            yStart = 395;
             Button btnCalcular = CriarBotao("ADICIONAR ATAQUE", 180, yStart, 200, 50, true);
             btnCalcular.Click += BtnCalcular_Click;
             painelAtaque.Controls.Add(btnCalcular);
@@ -268,7 +273,7 @@ namespace CalculadoraDanoT20
             btnLimpar.Click += BtnLimpar_Click;
             painelAtaque.Controls.Add(btnLimpar);
 
-            yStart = 420;
+            yStart = 465;
             GroupBox grpResultados = new GroupBox();
             grpResultados.Text = "DANO MÉDIO ACUMULADO";
             grpResultados.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
@@ -536,32 +541,6 @@ namespace CalculadoraDanoT20
             g.Controls.Add(lValor);
             return lValor;
         }
-
-        private Label CriarLabelRodadas(GroupBox g, string titulo, int x, int y)
-        {
-            Label lTitulo = new Label();
-            lTitulo.Text = titulo;
-            lTitulo.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
-            lTitulo.ForeColor = ColorTranslator.FromHtml("#F5F5DC");
-            lTitulo.Location = new Point(x, y);
-            lTitulo.Size = new Size(150, 25);
-            lTitulo.TextAlign = ContentAlignment.MiddleLeft;
-            lTitulo.BackColor = Color.Transparent;
-
-            Label lValor = new Label();
-            lValor.Text = "0";
-            lValor.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            lValor.ForeColor = ColorTranslator.FromHtml("#FFD700");
-            lValor.Location = new Point(x + 150, y);
-            lValor.Size = new Size(70, 25);
-            lValor.TextAlign = ContentAlignment.MiddleLeft;
-            lValor.BackColor = Color.Transparent;
-
-            g.Controls.Add(lTitulo);
-            g.Controls.Add(lValor);
-            return lValor;
-        }
-
 
         private double CalculaDado(string dado)
         {
