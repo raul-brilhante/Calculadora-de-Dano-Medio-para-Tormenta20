@@ -11,9 +11,18 @@ namespace CalculadoraDanoT20
         private Panel painelAtaque = null!;
         private Panel painelAmeaca = null!;
         private Panel painelConfigAmeaca = null!;
+        private GroupBox grpRodadasAmeaca = null!;
         private ComboBox cmbND = null!;
         private NumericUpDown numRD = null!;
         private NumericUpDown numFortificacao = null!;
+        private Label lblRodadas1 = null!;
+        private Label lblRodadas2 = null!;
+        private Label lblRodadas3 = null!;
+        private Label lblRodadas4 = null!;
+        private Label lblRodadas5 = null!;
+        private Label lblRodadas6 = null!;
+        private Label lblRodadas7 = null!;
+        private Label lblRodadas8 = null!;
         private Button btnModoAtaque = null!;
         private Button btnModoAmeaca = null!;
 
@@ -176,6 +185,32 @@ namespace CalculadoraDanoT20
             lblPercentual.BackColor = Color.Transparent;
             painelConfigAmeaca.Controls.Add(lblPercentual);
 
+            grpRodadasAmeaca = new GroupBox();
+            grpRodadasAmeaca.Text = "RODADAS ATÉ DERROTAR A AMEAÇA";
+            grpRodadasAmeaca.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            grpRodadasAmeaca.ForeColor = ColorTranslator.FromHtml("#FFD700");
+            grpRodadasAmeaca.BackColor = ColorTranslator.FromHtml("#3D2121");
+            grpRodadasAmeaca.Location = new Point(130, 360);
+            grpRodadasAmeaca.Size = new Size(520, 185);
+            grpRodadasAmeaca.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            painelAmeaca.Controls.Add(grpRodadasAmeaca);
+
+            int yRod = 35;
+            lblRodadas1 = CriarLabelRodadas(grpRodadasAmeaca, "Dano Normal:", 30, yRod);
+            lblRodadas2 = CriarLabelRodadas(grpRodadasAmeaca, "Normal (Concentração):", 270, yRod);
+
+            yRod += 35;
+            lblRodadas3 = CriarLabelRodadas(grpRodadasAmeaca, "Normal (Dilacerante):", 30, yRod);
+            lblRodadas4 = CriarLabelRodadas(grpRodadasAmeaca, "Conc. + Dilacerante:", 270, yRod);
+
+            yRod += 35;
+            lblRodadas5 = CriarLabelRodadas(grpRodadasAmeaca, "Normal (Lancinante):", 30, yRod);
+            lblRodadas6 = CriarLabelRodadas(grpRodadasAmeaca, "Conc. + Lancinante:", 270, yRod);
+
+            yRod += 35;
+            lblRodadas7 = CriarLabelRodadas(grpRodadasAmeaca, "Normal (Lancinante Rev.):", 30, yRod);
+            lblRodadas8 = CriarLabelRodadas(grpRodadasAmeaca, "Conc. + Lancinante Rev.:", 270, yRod);
+
             Panel painelPrincipal = new Panel();
             painelPrincipal.BackColor = ColorTranslator.FromHtml("#3D2121");
             painelPrincipal.Location = new Point(130, 30);
@@ -263,6 +298,7 @@ namespace CalculadoraDanoT20
 
             AtualizarLabels();
             AtualizarAtributosDaAmeaca();
+            AtualizarRodadasAteDerrotarAmeaca();
             AlternarModo(true);
             AjustarLayoutResponsivo();
         }
@@ -279,10 +315,35 @@ namespace CalculadoraDanoT20
             if (ndSelecionado == "0")
             {
                 atributosAmeacaAtual = CriarAtributosPlaceholder(considerar: false);
+                AtualizarRodadasAteDerrotarAmeaca();
                 return;
             }
 
             atributosAmeacaAtual = ObterAtributosPorND(ndSelecionado);
+            AtualizarRodadasAteDerrotarAmeaca();
+        }
+
+        private void AtualizarRodadasAteDerrotarAmeaca()
+        {
+            lblRodadas1.Text = CalcularRodadasTexto(totalAcumulado.Primeiro);
+            lblRodadas2.Text = CalcularRodadasTexto(totalAcumulado.Segundo);
+            lblRodadas3.Text = CalcularRodadasTexto(totalAcumulado.Terceiro);
+            lblRodadas4.Text = CalcularRodadasTexto(totalAcumulado.Quarto);
+            lblRodadas5.Text = CalcularRodadasTexto(totalAcumulado.Quinto);
+            lblRodadas6.Text = CalcularRodadasTexto(totalAcumulado.Sexto);
+            lblRodadas7.Text = CalcularRodadasTexto(totalAcumulado.Setimo);
+            lblRodadas8.Text = CalcularRodadasTexto(totalAcumulado.Oitavo);
+        }
+
+        private string CalcularRodadasTexto(double danoMedioAcumulado)
+        {
+            if (!atributosAmeacaAtual.Considerar || atributosAmeacaAtual.Vida <= 0 || danoMedioAcumulado <= 0)
+            {
+                return "0";
+            }
+
+            int rodadas = (int)Math.Ceiling(atributosAmeacaAtual.Vida / danoMedioAcumulado);
+            return rodadas.ToString();
         }
 
         private AtributosAmeaca ObterAtributosPorND(string nd)
@@ -476,6 +537,31 @@ namespace CalculadoraDanoT20
             return lValor;
         }
 
+        private Label CriarLabelRodadas(GroupBox g, string titulo, int x, int y)
+        {
+            Label lTitulo = new Label();
+            lTitulo.Text = titulo;
+            lTitulo.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+            lTitulo.ForeColor = ColorTranslator.FromHtml("#F5F5DC");
+            lTitulo.Location = new Point(x, y);
+            lTitulo.Size = new Size(150, 25);
+            lTitulo.TextAlign = ContentAlignment.MiddleLeft;
+            lTitulo.BackColor = Color.Transparent;
+
+            Label lValor = new Label();
+            lValor.Text = "0";
+            lValor.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            lValor.ForeColor = ColorTranslator.FromHtml("#FFD700");
+            lValor.Location = new Point(x + 150, y);
+            lValor.Size = new Size(70, 25);
+            lValor.TextAlign = ContentAlignment.MiddleLeft;
+            lValor.BackColor = Color.Transparent;
+
+            g.Controls.Add(lTitulo);
+            g.Controls.Add(lValor);
+            return lValor;
+        }
+
 
         private double CalculaDado(string dado)
         {
@@ -560,12 +646,14 @@ namespace CalculadoraDanoT20
             totalAcumulado.Oitavo += r.Oitavo;
 
             AtualizarLabels();
+            AtualizarRodadasAteDerrotarAmeaca();
         }
 
         private void BtnLimpar_Click(object? sender, EventArgs e)
         {
             totalAcumulado = new ResultadosFinais();
             AtualizarLabels();
+            AtualizarRodadasAteDerrotarAmeaca();
         }
 
         private void AtualizarLabels()
