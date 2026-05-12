@@ -7,6 +7,11 @@ namespace CalculadoraDanoT20
     public partial class Form1 : Form
     {
         private ResultadosFinais totalAcumulado = new ResultadosFinais();
+        private Panel painelAtaque = null!;
+        private Panel painelAmeaca = null!;
+        private Label lblAmeaca = null!;
+        private Button btnModoAtaque = null!;
+        private Button btnModoAmeaca = null!;
 
         public Form1()
         {
@@ -22,9 +27,11 @@ namespace CalculadoraDanoT20
 
         private void AjustarLayoutResponsivo()
         {
-            if (this.Controls.Count > 0)
+            Control.ControlCollection controles = painelAtaque != null ? painelAtaque.Controls : this.Controls;
+
+            if (controles.Count > 0)
             {
-                foreach (Control control in this.Controls)
+                foreach (Control control in controles)
                 {
                     if (control is Panel && control.BackColor == ColorTranslator.FromHtml("#3D2121"))
                     {
@@ -45,6 +52,13 @@ namespace CalculadoraDanoT20
                         }
                     }
                 }
+            }
+
+            if (lblAmeaca != null)
+            {
+                lblAmeaca.Location = new Point(
+                    Math.Max(20, (this.ClientSize.Width - lblAmeaca.Width) / 2),
+                    Math.Max(80, (this.ClientSize.Height - lblAmeaca.Height) / 2));
             }
         }
 
@@ -79,12 +93,43 @@ namespace CalculadoraDanoT20
             this.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
             this.ForeColor = ColorTranslator.FromHtml("#F5F5DC");
 
+            painelAtaque = new Panel();
+            painelAtaque.Location = new Point(0, 0);
+            painelAtaque.Size = this.ClientSize;
+            painelAtaque.BackColor = Color.Transparent;
+            painelAtaque.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            this.Controls.Add(painelAtaque);
+
+            painelAmeaca = new Panel();
+            painelAmeaca.Location = new Point(0, 0);
+            painelAmeaca.Size = this.ClientSize;
+            painelAmeaca.BackColor = Color.Transparent;
+            painelAmeaca.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            painelAmeaca.Visible = false;
+            this.Controls.Add(painelAmeaca);
+
+            btnModoAtaque = CriarBotaoModo("Ataque", 12, 20);
+            btnModoAtaque.Click += (_, __) => AlternarModo(true);
+            this.Controls.Add(btnModoAtaque);
+
+            btnModoAmeaca = CriarBotaoModo("Ameaça", 12, 65);
+            btnModoAmeaca.Click += (_, __) => AlternarModo(false);
+            this.Controls.Add(btnModoAmeaca);
+
+            lblAmeaca = new Label();
+            lblAmeaca.Text = "Ameaça\n(Em desenvolvimento)";
+            lblAmeaca.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
+            lblAmeaca.ForeColor = ColorTranslator.FromHtml("#B8860B");
+            lblAmeaca.Size = new Size(420, 90);
+            lblAmeaca.TextAlign = ContentAlignment.MiddleCenter;
+            painelAmeaca.Controls.Add(lblAmeaca);
+
             Panel painelPrincipal = new Panel();
             painelPrincipal.BackColor = ColorTranslator.FromHtml("#3D2121");
             painelPrincipal.Location = new Point(130, 30);
             painelPrincipal.Size = new Size(520, 300);
             painelPrincipal.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            this.Controls.Add(painelPrincipal);
+            painelAtaque.Controls.Add(painelPrincipal);
             
             Label lblTitulo = new Label();
             lblTitulo.Text = "CONFIGURAÇÃO DO ATAQUE";
@@ -130,11 +175,11 @@ namespace CalculadoraDanoT20
             yStart = 350;
             Button btnCalcular = CriarBotao("ADICIONAR ATAQUE", 180, yStart, 200, 50, true);
             btnCalcular.Click += BtnCalcular_Click;
-            this.Controls.Add(btnCalcular);
+            painelAtaque.Controls.Add(btnCalcular);
 
             Button btnLimpar = CriarBotao("LIMPAR / RESETAR", 400, yStart, 200, 50, false);
             btnLimpar.Click += BtnLimpar_Click;
-            this.Controls.Add(btnLimpar);
+            painelAtaque.Controls.Add(btnLimpar);
 
             yStart = 420;
             GroupBox grpResultados = new GroupBox();
@@ -145,7 +190,7 @@ namespace CalculadoraDanoT20
             grpResultados.Location = new Point(30, yStart);
             grpResultados.Size = new Size(720, 185);
             grpResultados.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
-            this.Controls.Add(grpResultados);
+            painelAtaque.Controls.Add(grpResultados);
 
             int yRes = 40;
             
@@ -165,6 +210,46 @@ namespace CalculadoraDanoT20
             lblRes8 = CriarLabelResultado(grpResultados, "Conc. + Lancinante Rev.:", 420, yRes);
 
             AtualizarLabels();
+            AlternarModo(true);
+            AjustarLayoutResponsivo();
+        }
+
+        private Button CriarBotaoModo(string texto, int x, int y)
+        {
+            Button btn = new Button();
+            btn.Text = texto;
+            btn.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btn.Location = new Point(x, y);
+            btn.Size = new Size(108, 31);
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 1;
+            btn.FlatAppearance.BorderColor = ColorTranslator.FromHtml("#B8860B");
+            btn.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            return btn;
+        }
+
+        private void AlternarModo(bool modoAtaque)
+        {
+            painelAtaque.Visible = modoAtaque;
+            painelAmeaca.Visible = !modoAtaque;
+
+            btnModoAtaque.BackColor = modoAtaque
+                ? ColorTranslator.FromHtml("#8B0000")
+                : ColorTranslator.FromHtml("#6B4545");
+            btnModoAtaque.ForeColor = modoAtaque
+                ? ColorTranslator.FromHtml("#FFD700")
+                : ColorTranslator.FromHtml("#F5F5DC");
+
+            btnModoAmeaca.BackColor = !modoAtaque
+                ? ColorTranslator.FromHtml("#8B0000")
+                : ColorTranslator.FromHtml("#6B4545");
+            btnModoAmeaca.ForeColor = !modoAtaque
+                ? ColorTranslator.FromHtml("#FFD700")
+                : ColorTranslator.FromHtml("#F5F5DC");
+
+            // Garante que os botões de modo nunca fiquem escondidos atrás dos painéis.
+            btnModoAtaque.BringToFront();
+            btnModoAmeaca.BringToFront();
         }
 
         private void CriarLabel(string texto, int x, int y, Control parent) {
