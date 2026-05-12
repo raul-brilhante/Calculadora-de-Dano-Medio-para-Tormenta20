@@ -24,6 +24,7 @@ namespace CalculadoraDanoT20
         private Label lblRodadas6 = null!;
         private Label lblRodadas7 = null!;
         private Label lblRodadas8 = null!;
+        private Label lblChanceAcerto = null!;
         private Button btnModoAtaque = null!;
         private Button btnModoAmeaca = null!;
 
@@ -212,6 +213,15 @@ namespace CalculadoraDanoT20
             lblRodadas7 = CriarLabelResultado(grpRodadasAmeaca, "Normal (Lancinante Rev.):", 50, yRod);
             lblRodadas8 = CriarLabelResultado(grpRodadasAmeaca, "Conc. + Lancinante Rev.:", 420, yRod);
 
+            lblChanceAcerto = new Label();
+            lblChanceAcerto.Text = "Chance de Acerto: --";
+            lblChanceAcerto.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            lblChanceAcerto.ForeColor = ColorTranslator.FromHtml("#FFD700");
+            lblChanceAcerto.BackColor = Color.Transparent;
+            lblChanceAcerto.Location = new Point(30, 555);
+            lblChanceAcerto.Size = new Size(500, 25);
+            painelAmeaca.Controls.Add(lblChanceAcerto);
+
             Panel painelPrincipal = new Panel();
             painelPrincipal.BackColor = ColorTranslator.FromHtml("#3D2121");
             painelPrincipal.Location = new Point(130, 30);
@@ -234,6 +244,7 @@ namespace CalculadoraDanoT20
 
             CriarLabel("Teste de ataque:", xLabel, yStart, painelPrincipal);
             numTesteAtaque = CriarNumeric(xInput, yStart, 0, -999, 999, painelPrincipal);
+            numTesteAtaque.ValueChanged += NumTesteAtaque_ValueChanged;
 
             yStart += yStep;
             
@@ -313,6 +324,11 @@ namespace CalculadoraDanoT20
             AtualizarAtributosDaAmeaca();
         }
 
+        private void NumTesteAtaque_ValueChanged(object? sender, EventArgs e)
+        {
+            AtualizarRodadasAteDerrotarAmeaca();
+        }
+
         private void AtualizarAtributosDaAmeaca()
         {
             string ndSelecionado = cmbND.SelectedItem?.ToString() ?? "0";
@@ -330,24 +346,144 @@ namespace CalculadoraDanoT20
 
         private void AtualizarRodadasAteDerrotarAmeaca()
         {
-            lblRodadas1.Text = CalcularRodadasTexto(totalAcumulado.Primeiro);
-            lblRodadas2.Text = CalcularRodadasTexto(totalAcumulado.Segundo);
-            lblRodadas3.Text = CalcularRodadasTexto(totalAcumulado.Terceiro);
-            lblRodadas4.Text = CalcularRodadasTexto(totalAcumulado.Quarto);
-            lblRodadas5.Text = CalcularRodadasTexto(totalAcumulado.Quinto);
-            lblRodadas6.Text = CalcularRodadasTexto(totalAcumulado.Sexto);
-            lblRodadas7.Text = CalcularRodadasTexto(totalAcumulado.Setimo);
-            lblRodadas8.Text = CalcularRodadasTexto(totalAcumulado.Oitavo);
+            double chanceAcerto = CalcularChanceAcerto();
+            double chanceAcertoConc = CalcularChanceAcertoComConcentracao();
+            lblChanceAcerto.Text = $"Chance de Acerto: {(chanceAcerto * 100):F0}% (Normal) / {(chanceAcertoConc * 100):F0}% (Conc.)";
+
+            lblRodadas1.Text = CalcularRodadasTexto(totalAcumulado.Primeiro, comConcentracao: false);
+            lblRodadas2.Text = CalcularRodadasTexto(totalAcumulado.Segundo, comConcentracao: true);
+            lblRodadas3.Text = CalcularRodadasTexto(totalAcumulado.Terceiro, comConcentracao: false);
+            lblRodadas4.Text = CalcularRodadasTexto(totalAcumulado.Quarto, comConcentracao: true);
+            lblRodadas5.Text = CalcularRodadasTexto(totalAcumulado.Quinto, comConcentracao: false);
+            lblRodadas6.Text = CalcularRodadasTexto(totalAcumulado.Sexto, comConcentracao: true);
+            lblRodadas7.Text = CalcularRodadasTexto(totalAcumulado.Setimo, comConcentracao: false);
+            lblRodadas8.Text = CalcularRodadasTexto(totalAcumulado.Oitavo, comConcentracao: true);
         }
 
-        private string CalcularRodadasTexto(double danoMedioAcumulado)
+        private double CalcularChanceAcerto()
+        {
+            if (!atributosAmeacaAtual.Considerar)
+            {
+                return 0.0;
+            }
+
+            int testeAtaque = (int)numTesteAtaque.Value;
+            int defesaAmeaca = atributosAmeacaAtual.Defesa;
+
+            int rolagemMinimaParaAcertar = defesaAmeaca - testeAtaque;
+            int resultadosQueAcertam = 0;
+
+            for (int d20 = 2; d20 <= 19; d20++)
+            {
+                if (d20 >= rolagemMinimaParaAcertar)
+                {
+                    resultadosQueAcertam++;
+                }
+            }
+
+            resultadosQueAcertam++;
+
+            return resultadosQueAcertam / 20.0;
+        }
+
+        private double CalcularChanceAcertoComConcentracao()
+        {
+            if (!atributosAmeacaAtual.Considerar)
+            {
+                return 0.0;
+            }
+
+            int testeAtaque = (int)numTesteAtaque.Value;
+            int defesaAmeaca = atributosAmeacaAtual.Defesa;
+            int rolagemMinimaParaAcertar = defesaAmeaca - testeAtaque;
+            int acertos = 0;
+
+            for (int d20_1 = 1; d20_1 <= 20; d20_1++)
+            {
+                for (int d20_2 = 1; d20_2 <= 20; d20_2++)
+                {
+                    int melhor = Math.Max(d20_1, d20_2);
+
+                    if (melhor == 1)
+                    {
+                        // Não conta
+                    }
+                    else if (melhor == 20)
+                    {
+                        acertos++;
+                    }
+                    else if (melhor >= rolagemMinimaParaAcertar)
+                    {
+                        acertos++;
+                    }
+                }
+            }
+
+            return acertos / 400.0;
+        }
+
+        private string CalcularRodadasTexto(double danoMedioAcumulado, bool comConcentracao = false)
         {
             if (!atributosAmeacaAtual.Considerar || atributosAmeacaAtual.Vida <= 0 || danoMedioAcumulado <= 0)
             {
                 return "0";
             }
 
-            int rodadas = (int)Math.Ceiling(atributosAmeacaAtual.Vida / danoMedioAcumulado);
+            int testeAtaque = (int)numTesteAtaque.Value;
+            int defesaAmeaca = atributosAmeacaAtual.Defesa;
+
+            int rolagemMinimaParaAcertar = defesaAmeaca - testeAtaque;
+            int resultadosQueAcertam = 0;
+
+            if (comConcentracao)
+            {
+                for (int d20_1 = 1; d20_1 <= 20; d20_1++)
+                {
+                    for (int d20_2 = 1; d20_2 <= 20; d20_2++)
+                    {
+                        int melhor = Math.Max(d20_1, d20_2);
+
+                        if (melhor == 1)
+                        {
+                            // Não conta
+                        }
+                        else if (melhor == 20)
+                        {
+                            resultadosQueAcertam++;
+                        }
+                        else if (melhor >= rolagemMinimaParaAcertar)
+                        {
+                            resultadosQueAcertam++;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int d20 = 2; d20 <= 19; d20++)
+                {
+                    if (d20 >= rolagemMinimaParaAcertar)
+                    {
+                        resultadosQueAcertam++;
+                    }
+                }
+                resultadosQueAcertam++;
+            }
+
+            if (resultadosQueAcertam <= 0)
+            {
+                return "∞";
+            }
+
+            double chanceAcerto = comConcentracao ? (resultadosQueAcertam / 400.0) : (resultadosQueAcertam / 20.0);
+            double danoMedioEfetivoPorRodada = danoMedioAcumulado * chanceAcerto;
+
+            if (danoMedioEfetivoPorRodada <= 0)
+            {
+                return "∞";
+            }
+
+            int rodadas = (int)Math.Ceiling(atributosAmeacaAtual.Vida / danoMedioEfetivoPorRodada);
             return rodadas.ToString();
         }
 
@@ -453,7 +589,6 @@ namespace CalculadoraDanoT20
                 ? ColorTranslator.FromHtml("#FFD700")
                 : ColorTranslator.FromHtml("#F5F5DC");
 
-            // Garante que os botões de modo nunca fiquem escondidos atrás dos painéis.
             btnModoAtaque.BringToFront();
             btnModoAmeaca.BringToFront();
         }
