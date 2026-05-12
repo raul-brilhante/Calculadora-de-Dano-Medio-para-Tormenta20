@@ -8,7 +8,7 @@ namespace CalculadoraDanoT20
     {
         private ResultadosFinais totalAcumulado = new ResultadosFinais();
         private AtributosAmeaca atributosAmeacaAtual = new AtributosAmeaca();
-        private NumericUpDown numTesteAtaque = null!;
+        private NumericUpDown numBonusAtaque = null!;
         private Panel painelAtaque = null!;
         private Panel painelAmeaca = null!;
         private Panel painelConfigAmeaca = null!;
@@ -242,9 +242,9 @@ namespace CalculadoraDanoT20
             int yStart = 55;
             int yStep = 45;
 
-            CriarLabel("Teste de ataque:", xLabel, yStart, painelPrincipal);
-            numTesteAtaque = CriarNumeric(xInput, yStart, 0, -999, 999, painelPrincipal);
-            numTesteAtaque.ValueChanged += NumTesteAtaque_ValueChanged;
+            CriarLabel("Bônus de ataque:", xLabel, yStart, painelPrincipal);
+            numBonusAtaque = CriarNumeric(xInput, yStart, 0, -999, 999, painelPrincipal);
+            numBonusAtaque.ValueChanged += NumBonusAtaque_ValueChanged;
 
             yStart += yStep;
             
@@ -324,7 +324,7 @@ namespace CalculadoraDanoT20
             AtualizarAtributosDaAmeaca();
         }
 
-        private void NumTesteAtaque_ValueChanged(object? sender, EventArgs e)
+        private void NumBonusAtaque_ValueChanged(object? sender, EventArgs e)
         {
             AtualizarRodadasAteDerrotarAmeaca();
         }
@@ -367,10 +367,10 @@ namespace CalculadoraDanoT20
                 return 0.0;
             }
 
-            int testeAtaque = (int)numTesteAtaque.Value;
+            int bonusAtaque = (int)numBonusAtaque.Value;
             int defesaAmeaca = atributosAmeacaAtual.Defesa;
 
-            int rolagemMinimaParaAcertar = defesaAmeaca - testeAtaque;
+            int rolagemMinimaParaAcertar = defesaAmeaca - bonusAtaque;
             int resultadosQueAcertam = 0;
 
             for (int d20 = 2; d20 <= 19; d20++)
@@ -393,9 +393,9 @@ namespace CalculadoraDanoT20
                 return 0.0;
             }
 
-            int testeAtaque = (int)numTesteAtaque.Value;
+            int bonusAtaque = (int)numBonusAtaque.Value;
             int defesaAmeaca = atributosAmeacaAtual.Defesa;
-            int rolagemMinimaParaAcertar = defesaAmeaca - testeAtaque;
+            int rolagemMinimaParaAcertar = defesaAmeaca - bonusAtaque;
             int acertos = 0;
 
             for (int d20_1 = 1; d20_1 <= 20; d20_1++)
@@ -429,10 +429,10 @@ namespace CalculadoraDanoT20
                 return "0";
             }
 
-            int testeAtaque = (int)numTesteAtaque.Value;
+            int bonusAtaque = (int)numBonusAtaque.Value;
             int defesaAmeaca = atributosAmeacaAtual.Defesa;
 
-            int rolagemMinimaParaAcertar = defesaAmeaca - testeAtaque;
+            int rolagemMinimaParaAcertar = defesaAmeaca - bonusAtaque;
             int resultadosQueAcertam = 0;
 
             if (comConcentracao)
