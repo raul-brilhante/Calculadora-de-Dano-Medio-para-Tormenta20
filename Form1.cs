@@ -9,7 +9,10 @@ namespace CalculadoraDanoT20
         private ResultadosFinais totalAcumulado = new ResultadosFinais();
         private Panel painelAtaque = null!;
         private Panel painelAmeaca = null!;
-        private Label lblAmeaca = null!;
+        private Panel painelConfigAmeaca = null!;
+        private ComboBox cmbND = null!;
+        private NumericUpDown numRD = null!;
+        private NumericUpDown numFortificacao = null!;
         private Button btnModoAtaque = null!;
         private Button btnModoAmeaca = null!;
 
@@ -54,11 +57,11 @@ namespace CalculadoraDanoT20
                 }
             }
 
-            if (lblAmeaca != null)
+            if (painelConfigAmeaca != null)
             {
-                lblAmeaca.Location = new Point(
-                    Math.Max(20, (this.ClientSize.Width - lblAmeaca.Width) / 2),
-                    Math.Max(80, (this.ClientSize.Height - lblAmeaca.Height) / 2));
+                painelConfigAmeaca.Location = new Point(
+                    Math.Max(20, (this.ClientSize.Width - painelConfigAmeaca.Width) / 2),
+                    painelConfigAmeaca.Location.Y);
             }
         }
 
@@ -75,7 +78,6 @@ namespace CalculadoraDanoT20
             {
                 var assembly = System.Reflection.Assembly.GetExecutingAssembly();
                 
-                // Usando o nome exato que você encontrou no teste
                 using (var stream = assembly.GetManifestResourceStream("CalculadoraT20.calculadorat20.ico"))
                 {
                     if (stream != null)
@@ -116,13 +118,61 @@ namespace CalculadoraDanoT20
             btnModoAmeaca.Click += (_, __) => AlternarModo(false);
             this.Controls.Add(btnModoAmeaca);
 
-            lblAmeaca = new Label();
-            lblAmeaca.Text = "Ameaça\n(Em desenvolvimento)";
-            lblAmeaca.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
-            lblAmeaca.ForeColor = ColorTranslator.FromHtml("#B8860B");
-            lblAmeaca.Size = new Size(420, 90);
-            lblAmeaca.TextAlign = ContentAlignment.MiddleCenter;
-            painelAmeaca.Controls.Add(lblAmeaca);
+            painelConfigAmeaca = new Panel();
+            painelConfigAmeaca.BackColor = ColorTranslator.FromHtml("#3D2121");
+            painelConfigAmeaca.Location = new Point(130, 120);
+            painelConfigAmeaca.Size = new Size(520, 220);
+            painelConfigAmeaca.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            painelAmeaca.Controls.Add(painelConfigAmeaca);
+
+            Label lblTituloAmeaca = new Label();
+            lblTituloAmeaca.Text = "CONFIGURAÇÃO DE AMEAÇAS";
+            lblTituloAmeaca.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            lblTituloAmeaca.ForeColor = ColorTranslator.FromHtml("#FFD700");
+            lblTituloAmeaca.Location = new Point(92, 15);
+            lblTituloAmeaca.Size = new Size(350, 25);
+            painelConfigAmeaca.Controls.Add(lblTituloAmeaca);
+
+            int xLabelAmeaca = 100;
+            int xInputAmeaca = 310;
+            int yAmeaca = 60;
+            int yStepAmeaca = 45;
+
+            CriarLabel("ND:", xLabelAmeaca, yAmeaca, painelConfigAmeaca);
+            cmbND = new ComboBox();
+            cmbND.FormattingEnabled = true;
+            cmbND.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbND.Font = new Font("Segoe UI", 10F);
+            cmbND.Location = new Point(xInputAmeaca, yAmeaca);
+            cmbND.Size = new Size(120, 28);
+            cmbND.BackColor = ColorTranslator.FromHtml("#FFF8DC");
+            cmbND.ForeColor = ColorTranslator.FromHtml("#2D1B1B");
+            cmbND.Items.AddRange(new object[] {
+                "0", "1/4", "1/2", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+                "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"
+            });
+            cmbND.SelectedItem = "0";
+            cmbND.Text = "0";
+            painelConfigAmeaca.Controls.Add(cmbND);
+
+            yAmeaca += yStepAmeaca;
+            CriarLabel("RD:", xLabelAmeaca, yAmeaca, painelConfigAmeaca);
+            numRD = CriarNumeric(xInputAmeaca, yAmeaca, 0, 0, 999, painelConfigAmeaca);
+            numRD.Value = 0;
+
+            yAmeaca += yStepAmeaca;
+            CriarLabel("Fortificação:", xLabelAmeaca, yAmeaca, painelConfigAmeaca);
+            numFortificacao = CriarNumeric(xInputAmeaca, yAmeaca, 0, 0, 100, painelConfigAmeaca);
+            numFortificacao.Value = 0;
+
+            Label lblPercentual = new Label();
+            lblPercentual.Text = "%";
+            lblPercentual.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            lblPercentual.ForeColor = ColorTranslator.FromHtml("#F5F5DC");
+            lblPercentual.Location = new Point(xInputAmeaca + 130, yAmeaca + 8);
+            lblPercentual.Size = new Size(25, 25);
+            lblPercentual.BackColor = Color.Transparent;
+            painelConfigAmeaca.Controls.Add(lblPercentual);
 
             Panel painelPrincipal = new Panel();
             painelPrincipal.BackColor = ColorTranslator.FromHtml("#3D2121");
@@ -374,6 +424,7 @@ namespace CalculadoraDanoT20
             int margem = (int)numMargem.Value;
             int multiplicador = (int)numMultiplicador.Value;
             int flat = (int)numBonusFlat.Value;
+            int rd = (int)numRD.Value;
             double danoArma = CalculaDado(txtDadosArma.Text);
             double dadosExtra = CalculaDado(txtDadosExtras.Text);
             
@@ -385,29 +436,29 @@ namespace CalculadoraDanoT20
 
             ResultadosFinais r = new ResultadosFinais();
 
-            r.Primeiro = (((((danoArma) + flat + dadosExtra) * (chanceNaoCritar)) + 
-                           ((((danoArma) * multiplicador) + flat + dadosExtra) * (chanceCritar))) / 100);
+            r.Primeiro = (((((danoArma) + flat + dadosExtra - rd) * (chanceNaoCritar)) + 
+                           ((((danoArma) * multiplicador) + flat + dadosExtra - rd) * (chanceCritar))) / 100);
 
-            r.Segundo = ((((danoArma) + flat + dadosExtra) * (chanceNaoCritarC) + 
-                          (((danoArma) * multiplicador) + flat + dadosExtra) * (chanceCritarC)) / 100);
+            r.Segundo = ((((danoArma) + flat + dadosExtra - rd) * (chanceNaoCritarC) + 
+                          (((danoArma) * multiplicador) + flat + dadosExtra - rd) * (chanceCritarC)) / 100);
 
-            r.Terceiro = (((((danoArma) + flat + dadosExtra) * (chanceNaoCritar)) + 
-                           ((((danoArma) * multiplicador) + flat + 10 + dadosExtra) * (chanceCritar))) / 100);
+            r.Terceiro = (((((danoArma) + flat + dadosExtra - rd) * (chanceNaoCritar)) + 
+                           ((((danoArma) * multiplicador) + flat + 10 + dadosExtra - rd) * (chanceCritar))) / 100);
 
-            r.Quarto = ((((danoArma) + flat + dadosExtra) * (chanceNaoCritarC) + 
-                         (((danoArma) * multiplicador) + flat + 10 + dadosExtra) * (chanceCritarC)) / 100);
+            r.Quarto = ((((danoArma) + flat + dadosExtra - rd) * (chanceNaoCritarC) + 
+                         (((danoArma) * multiplicador) + flat + 10 + dadosExtra - rd) * (chanceCritarC)) / 100);
 
-            r.Quinto = (((((danoArma) + flat + dadosExtra) * (chanceNaoCritar)) + 
-                         (((((danoArma) + flat) * multiplicador) + dadosExtra) * (chanceCritar))) / 100);
+            r.Quinto = (((((danoArma) + flat + dadosExtra - rd) * (chanceNaoCritar)) + 
+                         (((((danoArma) + flat) * multiplicador) + dadosExtra - rd) * (chanceCritar))) / 100);
 
-            r.Sexto = ((((danoArma) + flat + dadosExtra) * (chanceNaoCritarC) + 
-                        ((((danoArma) + flat) * multiplicador) + dadosExtra) * (chanceCritarC)) / 100);
+            r.Sexto = ((((danoArma) + flat + dadosExtra - rd) * (chanceNaoCritarC) + 
+                        ((((danoArma) + flat) * multiplicador) + dadosExtra - rd) * (chanceCritarC)) / 100);
 
-            r.Setimo = (((((danoArma) + flat + dadosExtra) * (chanceNaoCritar)) + 
-                         (((((danoArma) + 10) * multiplicador) + flat + dadosExtra) * (chanceCritar))) / 100);
+            r.Setimo = (((((danoArma) + flat + dadosExtra - rd) * (chanceNaoCritar)) + 
+                         (((((danoArma) + 10) * multiplicador) + flat + dadosExtra - rd) * (chanceCritar))) / 100);
 
-            r.Oitavo = ((((danoArma) + flat + dadosExtra) * (chanceNaoCritarC) + 
-                         ((((danoArma) + 10) * multiplicador) + flat + dadosExtra) * (chanceCritarC)) / 100);
+            r.Oitavo = ((((danoArma) + flat + dadosExtra - rd) * (chanceNaoCritarC) + 
+                         ((((danoArma) + 10) * multiplicador) + flat + dadosExtra - rd) * (chanceCritarC)) / 100);
 
             totalAcumulado.Primeiro += r.Primeiro;
             totalAcumulado.Segundo += r.Segundo;
