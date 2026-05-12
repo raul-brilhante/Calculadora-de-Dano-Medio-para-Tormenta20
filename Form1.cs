@@ -7,6 +7,7 @@ namespace CalculadoraDanoT20
     public partial class Form1 : Form
     {
         private ResultadosFinais totalAcumulado = new ResultadosFinais();
+        private AtributosAmeaca atributosAmeacaAtual = new AtributosAmeaca();
         private Panel painelAtaque = null!;
         private Panel painelAmeaca = null!;
         private Panel painelConfigAmeaca = null!;
@@ -149,10 +150,11 @@ namespace CalculadoraDanoT20
             cmbND.ForeColor = ColorTranslator.FromHtml("#2D1B1B");
             cmbND.Items.AddRange(new object[] {
                 "0", "1/4", "1/2", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
-                "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"
+                "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "S", "S+"
             });
             cmbND.SelectedItem = "0";
             cmbND.Text = "0";
+            cmbND.SelectedIndexChanged += CmbND_SelectedIndexChanged;
             painelConfigAmeaca.Controls.Add(cmbND);
 
             yAmeaca += yStepAmeaca;
@@ -260,8 +262,96 @@ namespace CalculadoraDanoT20
             lblRes8 = CriarLabelResultado(grpResultados, "Conc. + Lancinante Rev.:", 420, yRes);
 
             AtualizarLabels();
+            AtualizarAtributosDaAmeaca();
             AlternarModo(true);
             AjustarLayoutResponsivo();
+        }
+
+        private void CmbND_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            AtualizarAtributosDaAmeaca();
+        }
+
+        private void AtualizarAtributosDaAmeaca()
+        {
+            string ndSelecionado = cmbND.SelectedItem?.ToString() ?? "0";
+
+            if (ndSelecionado == "0")
+            {
+                atributosAmeacaAtual = CriarAtributosPlaceholder(considerar: false);
+                return;
+            }
+
+            atributosAmeacaAtual = ObterAtributosPorND(ndSelecionado);
+        }
+
+        private AtributosAmeaca ObterAtributosPorND(string nd)
+        {
+            return nd switch
+            {
+                "1/4" => new AtributosAmeaca
+                { Considerar = true, Vida = 7, Defesa = 11, ResistenciaForte = 3, ResistenciaMedia = 0, ResistenciaFraca = -2 },
+                "1/2" => new AtributosAmeaca
+                { Considerar = true, Vida = 15, Defesa = 14, ResistenciaForte = 6, ResistenciaMedia = 3, ResistenciaFraca = -1 },
+                "1" => new AtributosAmeaca
+                { Considerar = true, Vida = 35, Defesa = 16, ResistenciaForte = 11, ResistenciaMedia = 5, ResistenciaFraca = 0 },
+                "2" => new AtributosAmeaca
+                { Considerar = true, Vida = 70, Defesa = 19, ResistenciaForte = 13, ResistenciaMedia = 7, ResistenciaFraca = 2 },
+                "3" => new AtributosAmeaca
+                { Considerar = true, Vida = 105, Defesa = 21, ResistenciaForte = 15, ResistenciaMedia = 9, ResistenciaFraca = 3 },
+                "4" => new AtributosAmeaca
+                { Considerar = true, Vida = 140, Defesa = 23, ResistenciaForte = 16, ResistenciaMedia = 10, ResistenciaFraca = 4 },
+                "5" => new AtributosAmeaca
+                { Considerar = true, Vida = 200, Defesa = 24, ResistenciaForte = 17, ResistenciaMedia = 11, ResistenciaFraca = 5 },
+                "6" => new AtributosAmeaca
+                { Considerar = true, Vida = 240, Defesa = 27, ResistenciaForte = 18, ResistenciaMedia = 12, ResistenciaFraca = 6 },
+                "7" => new AtributosAmeaca
+                { Considerar = true, Vida = 280, Defesa = 31, ResistenciaForte = 20, ResistenciaMedia = 14, ResistenciaFraca = 7 },
+                "8" => new AtributosAmeaca
+                { Considerar = true, Vida = 320, Defesa = 33, ResistenciaForte = 21, ResistenciaMedia = 15, ResistenciaFraca = 8 },
+                "9" => new AtributosAmeaca
+                { Considerar = true, Vida = 360, Defesa = 34, ResistenciaForte = 21, ResistenciaMedia = 15, ResistenciaFraca = 9 },
+                "10" => new AtributosAmeaca
+                { Considerar = true, Vida = 400, Defesa = 36, ResistenciaForte = 22, ResistenciaMedia = 16, ResistenciaFraca = 10 },
+                "11" => new AtributosAmeaca
+                { Considerar = true, Vida = 550, Defesa = 41, ResistenciaForte = 24, ResistenciaMedia = 18, ResistenciaFraca = 11 },
+                "12" => new AtributosAmeaca
+                {  Considerar = true, Vida = 600, Defesa = 43, ResistenciaForte = 26, ResistenciaMedia = 20, ResistenciaFraca = 12 },
+                "13" => new AtributosAmeaca
+                { Considerar = true, Vida = 650, Defesa = 44, ResistenciaForte = 26, ResistenciaMedia = 20, ResistenciaFraca = 13 },
+                "14" => new AtributosAmeaca
+                { Considerar = true, Vida = 700, Defesa = 46, ResistenciaForte = 28, ResistenciaMedia = 22, ResistenciaFraca = 14 },
+                "15" => new AtributosAmeaca
+                { Considerar = true, Vida = 750, Defesa = 50, ResistenciaForte = 28, ResistenciaMedia = 22, ResistenciaFraca = 15 },
+                "16" => new AtributosAmeaca
+                { Considerar = true, Vida = 800, Defesa = 53, ResistenciaForte = 30, ResistenciaMedia = 24, ResistenciaFraca = 16 },
+                "17" => new AtributosAmeaca
+                { Considerar = true, Vida = 1020, Defesa = 54, ResistenciaForte = 30, ResistenciaMedia = 24, ResistenciaFraca = 17 },
+                "18" => new AtributosAmeaca
+                { Considerar = true, Vida = 1080, Defesa = 56, ResistenciaForte = 32, ResistenciaMedia = 26, ResistenciaFraca = 18 },
+                "19" => new AtributosAmeaca
+                { Considerar = true, Vida = 1140, Defesa = 59, ResistenciaForte = 32, ResistenciaMedia = 26, ResistenciaFraca = 19 },
+                "20" => new AtributosAmeaca
+                { Considerar = true, Vida = 1200, Defesa = 61, ResistenciaForte = 34, ResistenciaMedia = 28, ResistenciaFraca = 20 },
+                "S" => new AtributosAmeaca
+                { Considerar = true, Vida = 2500, Defesa = 65, ResistenciaForte = 36, ResistenciaMedia = 30, ResistenciaFraca = 22 },
+                "S+" => new AtributosAmeaca
+                { Considerar = true, Vida = 4000, Defesa = 70, ResistenciaForte = 38, ResistenciaMedia = 33, ResistenciaFraca = 25 },
+                _ => CriarAtributosPlaceholder(considerar: false)
+            };
+        }
+
+        private AtributosAmeaca CriarAtributosPlaceholder(bool considerar)
+        {
+            return new AtributosAmeaca
+            {
+                Considerar = considerar,
+                Vida = 0,
+                Defesa = 0,
+                ResistenciaForte = 0,
+                ResistenciaMedia = 0,
+                ResistenciaFraca = 0
+            };
         }
 
         private Button CriarBotaoModo(string texto, int x, int y)
@@ -501,5 +591,15 @@ namespace CalculadoraDanoT20
         public double Sexto { get; set; } = 0.0;
         public double Setimo { get; set; } = 0.0;
         public double Oitavo { get; set; } = 0.0;
+    }
+
+    public class AtributosAmeaca
+    {
+        public bool Considerar { get; set; } = false;
+        public int Vida { get; set; } = 0;
+        public int Defesa { get; set; } = 0;
+        public int ResistenciaForte { get; set; } = 0;
+        public int ResistenciaMedia { get; set; } = 0;
+        public int ResistenciaFraca { get; set; } = 0;
     }
 }
